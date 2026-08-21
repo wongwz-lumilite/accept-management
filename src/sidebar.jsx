@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useSidebar } from "./useSidebar.js";
-import "./assets/Sidebar.css";
+import "./assets/sidebar.css";
 import "./assets/global.css";
 
 import Lumilite from "./assets/Lumilite.png";
