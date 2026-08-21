@@ -1,0 +1,287 @@
+import {useEffect, useState} from "react";
+import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore";
+import {db} from "./firebase.js";
+
+
+import "./assets/global.css";
+import "./assets/HomePage.css";
+import SignOutButton from "./signOut.jsx";
+import { sendMaintenanceReminder } from "./email.js";
+import { useSidebar } from "./useSidebar.js";
+
+function isMaintenanceRequired(installedDate) {
+    if (!installedDate) return false;
+
+    // Firestore Timestamps have a .toDate() method; handle plain dates too
+    const installed = installedDate.toDate ? installedDate.toDate() : new Date(installedDate);
+
+    const threeYearsAgo = new Date();
+    threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+
+    return installed < threeYearsAgo;
+}
+
+function setStatusStyle(status) {
+    if (!status) return false;
+    if (status === "active"){
+        return "green-text";
+    } else if (status === "inactive"){
+        return "red-text";
+    }
+}
+
+function formatMaintenanceMessage(lights) {
+    const dueLights = lights.filter((light) => isMaintenanceRequired(light.installedDate));
+
+    if (dueLights.length === 0) {
+        return "No streetlights currently require maintenance.";
+    }
+
+    return dueLights
+        .map((light) => {
+            const installed = light.installedDate?.toDate
+                ? light.installedDate.toDate().toLocaleDateString()
+                : light.installedDate;
+            return `• ${light.id} (Zone ${light.zone}) — installed ${installed}, status: ${light.status}`;
+        })
+        .join("\n");
+}
+
+
+function HomePage() {
+    const [streetlights, setStreetlights] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const [toEmail, setToEmail] = useState("");
+    const [sending, setSending] = useState(false);
+    const [sendStatus, setSendStatus] = useState(null);
+
+    const [showModal, setShowModal] = useState(false);
+
+    const [newId, setNewId] = useState("");
+    const [newZone, setNewZone] = useState("");
+    const [newStatus, setNewStatus] = useState("active");
+    const [newDate, setNewDate] = useState("");
+    const [newLat, setNewLat] = useState("");
+    const [newLng, setNewLng] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    const { collapsed, setCollapsed } = useSidebar();
+
+    const fetchStreetlights = async () => {
+        try {
+            const snapshot = await getDocs(collection(db, "streetlights"));
+            const data = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setStreetlights(data);
+        } catch (err) {
+            console.error("Error fetching streetlights:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchStreetlights();
+    }, []);
+
+    const handleSendMaintenanceEmail = async () => {
+        if (!toEmail) {
+            setSendStatus("Please enter a recipient email.");
+            return;
+        }
+
+        setSending(true);
+        setSendStatus(null);
+
+        const message = formatMaintenanceMessage(streetlights);
+        const result = await sendMaintenanceReminder(toEmail, message);
+
+        setSending(false);
+        setSendStatus(result.success ? "Email sent!" : "Failed to send email.");
+    };
+
+    const handleAddStreetlight = async (e) => {
+        e.preventDefault();
+        if (!newId || !newZone || !newDate) {
+            alert("Please fill in at least ID, Zone, and Installation Date.");
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            await setDoc(doc(db, "streetlights", newId), {
+                zone: newZone,
+                status: newStatus,
+                installedDate: Timestamp.fromDate(new Date(newDate)),
+                latitude: newLat ? parseFloat(newLat) : null,
+                longitude: newLng ? parseFloat(newLng) : null,
+            });
+
+            setNewId("");
+            setNewZone("");
+            setNewStatus("active");
+            setNewDate("");
+            setNewLat("");
+            setNewLng("");
+            setShowModal(false); // close popup on success
+
+            await fetchStreetlights();
+        } catch (err) {
+            console.error("Error adding streetlight:", err);
+            alert("Failed to add streetlight: " + err.message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    if (loading) return <p>Loading streetlights...</p>;
+    if (error) return <p>Error: {error}</p>;
+
+    return (
+        <>
+            <div className="header">
+                <button
+                    onClick={() => setCollapsed(!collapsed)}
+                    style={{
+                        background: "none",
+                        border: "none",
+                        fontSize: "22px",
+                        cursor: "pointer",
+                        color: "#1a3d5c",
+                    }}
+                >
+                    ☰
+                </button>
+                <h2 style={{ margin: 0 }}>Streetlight Dashboard</h2>
+                <SignOutButton />
+            </div>
+
+
+            <div style={{ padding: "20px" }}>
+                <div className="flex-row space-between align-center">
+                    <h1>Streetlight List</h1>
+                    <div className="flex-row space-between gap-20 h-50 align-items-center">
+                        <button onClick={handleSendMaintenanceEmail} disabled={sending}>
+                            {sending ? "Sending..." : "Send Maintenance Form to Email"}
+                        </button>
+                        <input className="h-20"
+                            type="email"
+                            placeholder="Recipient email"
+                            value={toEmail}
+                            onChange={(e) => setToEmail(e.target.value)}
+                        />
+                    </div>
+
+                </div>
+                <div className="h-850">
+                    <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }}>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th className="center">Zone</th>
+                            <th className="center">Status</th>
+                            <th>Longitude</th>
+                            <th>Latitude</th>
+                            <th>Installation Date</th>
+                            <th className="center">Maintenance Required</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {streetlights.map((light) => (
+                            <tr key={light.id}>
+                                <td>{light.id}</td>
+                                <td className="center">{light.zone}</td>
+                                <td className="center">
+                                    <span className={setStatusStyle(light.status)} style={{width: "40%"}}>{light.status.charAt(0).toUpperCase() + light.status.slice(1)}</span>
+                                </td>
+                                <td>{light.longitude}</td>
+                                <td>{light.latitude}</td>
+                                <td>
+                                    {light.installedDate?.toDate
+                                        ? light.installedDate.toDate().toLocaleDateString()
+                                        : light.installedDate}
+                                </td>
+                                <td style={{ textAlign: "center" }}>
+                                    {isMaintenanceRequired(light.installedDate) ? (
+                                        <span className="red-text">Yes</span>
+                                    ) : (
+                                        <span className="green-text">No</span>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div className="flex-row justify-right p-20">
+                <button className="fab" onClick={() => setShowModal(true)}>
+                    Add Streetlight
+                </button>
+            </div>
+
+            {showModal && (
+                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Add New Streetlight</h2>
+                            <button className="modal-close" onClick={() => setShowModal(false)}>
+                                ✕
+                            </button>
+                        </div>
+                        <form onSubmit={handleAddStreetlight}>
+                            <input
+                                type="text"
+                                placeholder="ID (e.g. SL003)"
+                                value={newId}
+                                onChange={(e) => setNewId(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Zone (e.g. A)"
+                                value={newZone}
+                                onChange={(e) => setNewZone(e.target.value)}
+                            />
+                            <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+                                <option value="active">active</option>
+                                <option value="inactive">inactive</option>
+                            </select>
+                            <input
+                                type="date"
+                                value={newDate}
+                                onChange={(e) => setNewDate(e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                step="any"
+                                placeholder="Latitude"
+                                value={newLat}
+                                onChange={(e) => setNewLat(e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                step="any"
+                                placeholder="Longitude"
+                                value={newLng}
+                                onChange={(e) => setNewLng(e.target.value)}
+                            />
+                            <button type="submit" disabled={submitting}>
+                                {submitting ? "Adding..." : "Add Streetlight"}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </>
+
+    );
+}
+
+export default HomePage;
