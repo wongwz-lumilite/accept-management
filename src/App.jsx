@@ -5,8 +5,8 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import "./assets/App.css";
 
-import SignUp from "./SignUp";
-import SignIn from "./SignIn";
+import SignUp from "./signUp";
+import SignIn from "./signIn";
 import HomePage from "./HomePage";
 import AccountPage from "./AccountPage.jsx";
 import MaintenanceLogPage from "./MaintenanceLog.jsx";
