@@ -1,4 +1,4 @@
-import Sidebar from "./Sidebar.jsx";
+import Sidebar from "./sidebar.jsx";
 
 function Layout({ children }) {
     return (
