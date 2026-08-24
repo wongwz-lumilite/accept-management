@@ -10,7 +10,7 @@ function Sidebar() {
 
     return (
         <div className={collapsed ? "sidebar collapsed" : "sidebar"}>
-            <div className="image-center">
+            <div className="image-center-sidebar">
                 <img src={Lumilite} alt="logo" />
             </div>
             <nav>

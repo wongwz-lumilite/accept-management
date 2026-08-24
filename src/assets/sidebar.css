@@ -27,10 +27,11 @@
 
 .sidebar-link {
     padding: 12px 20px;
-    color: #cfe8fa;
+    color: #ffffff;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: bold;
     display: block;
+
 }
 
 .sidebar-link:hover {
@@ -40,4 +41,15 @@
 .sidebar-link.active {
     background-color: #2f7cb8;
     color: white;
+}
+
+.image-center-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom:10px;
+}
+
+.image-center-sidebar img {
+    width: 200px;
 }

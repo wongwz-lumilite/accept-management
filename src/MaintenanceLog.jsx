@@ -14,6 +14,15 @@ function isMaintenanceRequired(installedDate) {
     return installed < threeYearsAgo;
 }
 
+function setStatusStyle(status) {
+    if (!status) return false;
+    if (status === "active") {
+        return "green-text";
+    } else if (status === "inactive") {
+        return "red-text";
+    }
+}
+
 function MaintenanceLogPage() {
     const { collapsed, setCollapsed } = useSidebar();
 
@@ -88,7 +97,9 @@ function MaintenanceLogPage() {
                             <tr key={light.id}>
                                 <td>{light.id}</td>
                                 <td className="center">{light.zone}</td>
-                                <td className="center">{light.status}</td>
+                                <td className="center">
+                                    <span className={setStatusStyle(light.status)} style={{width: "40%"}}>{light.status.charAt(0).toUpperCase() + light.status.slice(1)}</span>
+                                </td>
                                 <td>
                                     {light.installedDate?.toDate
                                         ? light.installedDate.toDate().toLocaleDateString()

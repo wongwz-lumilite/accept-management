@@ -1,3 +1,9 @@
+h1 {
+    color: #2f7cb8;
+    border-color: black;
+    font-weight: 750;
+}
+
 .signIn {
     display: flex;
     align-items: center;
@@ -11,25 +17,38 @@ form {
     gap: 10px;
     width: 60%;
     align-items: center;
+    font-size: 15px;
 }
 
 input {
     width: 60%;
     border-radius: 15px;
     padding: 10px;
+    font-size: 15px;
 }
 
-.image-center {
+.image-logo-center {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 }
 
-.image-center img {
-    width: 400px;
+.image-logo-center img {
+    width: 600px;
 }
 
-button:hover {
+.sign-in-btn {
+    border-color: black;
+    padding: 14px 22px;
+    background-color: #2f7cb8;
+    color: white;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: background-color 0.2s ease;
 
 }
 

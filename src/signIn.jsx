@@ -4,7 +4,7 @@ import { signIn } from "./authSignIn";
 import "./assets/signIn.css";
 import "./assets/global.css";
 
-import LumiliteLogo from "./assets/Lumilite-logo.png";
+
 import Lumilite from "./assets/Lumilite.png";
 
 function SignIn() {
@@ -26,28 +26,31 @@ function SignIn() {
 
     return (
         <>
-            <div className="image-center">
-                <img src={Lumilite} alt="logo" />
-            </div>
-            <div className="signIn">
-                <form onSubmit={handleSubmit}>
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    {error && <p style={{ color: "red" }}>{error}</p>}
-                    <button type="submit" className="general-button ">Sign In</button>
-                </form>
+            <div style={{display: "flex",flexDirection: "column", marginTop: "5rem"}}>
+                <div className="image-logo-center" style={{flexDirection: "column", alignItems: "center"}}>
+                    <img src={Lumilite} alt="logo" />
+                    <h1>Asset Management Dashboard</h1>
+                </div>
+                <div className="signIn">
+                    <form onSubmit={handleSubmit}>
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                        {error && <p style={{ color: "red" }}>{error}</p>}
+                        <button type="submit" className="sign-in-btn">Sign In</button>
+                    </form>
+                </div>
             </div>
         </>
     );

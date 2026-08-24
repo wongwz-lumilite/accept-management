@@ -2,6 +2,10 @@ thead {
     font-weight: bold;
 }
 
+td {
+    height: 55px;
+}
+
 .flex-row {
     display: flex;
     flex-direction: row;
@@ -9,6 +13,36 @@ thead {
 
 .space-between {
     justify-content: space-between;
+}
+
+.maintenance-btn2 {
+    width: 70%;
+    height: 40px;
+    padding: 5px;
+    border-radius: 20px;
+    font-size: 15px;
+    background-color: #5ba3df;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.2s ease;
+}
+
+
+.maintenance-btn {
+    width: 250px;
+    height: 50px;
+    padding: 10px;
+    border-radius: 20px;
+    font-size: 15px;
+    background-color: #2f7cb8;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: background-color 0.2s ease;
 }
 
 /* Floating button */

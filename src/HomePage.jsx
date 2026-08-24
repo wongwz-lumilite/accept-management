@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, Timestamp , updateDoc} from "firebase/firestore";
 import {db} from "./firebase.js";
 
 
@@ -9,15 +9,26 @@ import SignOutButton from "./signOut.jsx";
 import { sendMaintenanceReminder } from "./email.js";
 import { useSidebar } from "./useSidebar.js";
 
-function isMaintenanceRequired(installedDate) {
+function isMaintenanceRequired(installedDate, maintenanceDate) {
     if (!installedDate) return false;
 
-    // Firestore Timestamps have a .toDate() method; handle plain dates too
+    // Convert Firestore Timestamps or strings/numbers to JS Date objects
     const installed = installedDate.toDate ? installedDate.toDate() : new Date(installedDate);
+    const maintained = maintenanceDate?.toDate
+        ? maintenanceDate.toDate()
+        : maintenanceDate
+            ? new Date(maintenanceDate)
+            : null;
 
     const threeYearsAgo = new Date();
     threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
 
+    // 1. If it was maintained recently (less than 3 years ago), no maintenance needed
+    if (maintained && maintained >= threeYearsAgo) {
+        return false;
+    }
+
+    // 2. Otherwise, check if installed date is older than 3 years
     return installed < threeYearsAgo;
 }
 
@@ -27,6 +38,18 @@ function setStatusStyle(status) {
         return "green-text";
     } else if (status === "inactive"){
         return "red-text";
+    }
+}
+
+async function handleMaintenance(lights) {
+    try {
+        const docRef = doc(db, "streetlights", lights);
+        await updateDoc(docRef, {
+            isMaintained: Timestamp.now()
+        });
+        console.log(`Document ${lights} updated with isMaintained: null`);
+    } catch (error) {
+        console.error("Error updating maintenance status: ", error);
     }
 }
 
@@ -60,6 +83,7 @@ function HomePage() {
     const [showModal, setShowModal] = useState(false);
 
     const [newId, setNewId] = useState("");
+    const [newUID, setNewUID] = useState("");
     const [newZone, setNewZone] = useState("");
     const [newStatus, setNewStatus] = useState("active");
     const [newDate, setNewDate] = useState("");
@@ -107,22 +131,24 @@ function HomePage() {
 
     const handleAddStreetlight = async (e) => {
         e.preventDefault();
-        if (!newId || !newZone || !newDate) {
-            alert("Please fill in at least ID, Zone, and Installation Date.");
+        if (!newId || !newZone) {
+            alert("Please fill in at least ID and Zone");
             return;
         }
 
         try {
             setSubmitting(true);
             await setDoc(doc(db, "streetlights", newId), {
+                UID: newUID,
                 zone: newZone,
                 status: newStatus,
-                installedDate: Timestamp.fromDate(new Date(newDate)),
+                installedDate: Timestamp.now(),
                 latitude: newLat ? parseFloat(newLat) : null,
                 longitude: newLng ? parseFloat(newLng) : null,
             });
 
             setNewId("");
+            setNewUID("");
             setNewZone("");
             setNewStatus("active");
             setNewDate("");
@@ -165,8 +191,8 @@ function HomePage() {
             <div style={{ padding: "20px" }}>
                 <div className="flex-row space-between align-center">
                     <h1>Streetlight List</h1>
-                    <div className="flex-row space-between gap-20 h-50 align-items-center">
-                        <button onClick={handleSendMaintenanceEmail} disabled={sending}>
+                    <div className="flex-row space-between gap-20 h-50 align-items-center justify-center">
+                        <button className = "maintenance-btn" onClick={handleSendMaintenanceEmail} disabled={sending}>
                             {sending ? "Sending..." : "Send Maintenance Form to Email"}
                         </button>
                         <input className="h-20"
@@ -183,34 +209,46 @@ function HomePage() {
                         <thead>
                         <tr>
                             <th>ID</th>
+                            <th>UID</th>
                             <th className="center">Zone</th>
                             <th className="center">Status</th>
                             <th>Longitude</th>
                             <th>Latitude</th>
                             <th>Installation Date</th>
                             <th className="center">Maintenance Required</th>
+                            <th className="center">Mark as Maintained</th>
                         </tr>
                         </thead>
                         <tbody>
                         {streetlights.map((light) => (
                             <tr key={light.id}>
                                 <td>{light.id}</td>
+                                <td>{light.UID}</td>
                                 <td className="center">{light.zone}</td>
                                 <td className="center">
                                     <span className={setStatusStyle(light.status)} style={{width: "40%"}}>{light.status.charAt(0).toUpperCase() + light.status.slice(1)}</span>
                                 </td>
-                                <td>{light.longitude}</td>
-                                <td>{light.latitude}</td>
+                                <td>{light.longitude.toFixed(8)}</td>
+                                <td>{light.latitude.toFixed(8)}</td>
                                 <td>
                                     {light.installedDate?.toDate
                                         ? light.installedDate.toDate().toLocaleDateString()
                                         : light.installedDate}
                                 </td>
                                 <td style={{ textAlign: "center" }}>
-                                    {isMaintenanceRequired(light.installedDate) ? (
+                                    {isMaintenanceRequired(light.installedDate, light.isMaintained) ? (
                                         <span className="red-text">Yes</span>
                                     ) : (
                                         <span className="green-text">No</span>
+                                    )}
+                                </td>
+                                <td className="center">
+                                    {isMaintenanceRequired(light.installedDate, light.isMaintained) ? (
+                                        <button className="maintenance-btn2" onClick={() => handleMaintenance(light.id)}>
+                                            Maintained
+                                        </button>
+                                    ) : (
+                                        <span><b>No action Required</b></span>
                                     )}
                                 </td>
                             </tr>
@@ -245,6 +283,12 @@ function HomePage() {
                             />
                             <input
                                 type="text"
+                                placeholder="UID"
+                                value={newUID}
+                                onChange={(e) => setNewUID(e.target.value)}
+                            />
+                            <input
+                                type="text"
                                 placeholder="Zone (e.g. A)"
                                 value={newZone}
                                 onChange={(e) => setNewZone(e.target.value)}
@@ -253,11 +297,6 @@ function HomePage() {
                                 <option value="active">active</option>
                                 <option value="inactive">inactive</option>
                             </select>
-                            <input
-                                type="date"
-                                value={newDate}
-                                onChange={(e) => setNewDate(e.target.value)}
-                            />
                             <input
                                 type="number"
                                 step="any"
