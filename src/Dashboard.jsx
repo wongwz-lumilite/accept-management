@@ -6,6 +6,8 @@ import { db } from "./firebase.js";
 
 import "./assets/global.css";
 import "./assets/Dashboard.css";
+import "./assets/sidebar.css";
+import "./assets/HomePage.css";
 
 import { useSidebar } from "./useSidebar.js";
 import SignOutButton from "./signOut.jsx";
@@ -86,7 +88,7 @@ function Dashboard() {
                 <button className="toggle-btn" onClick={() => setCollapsed(!collapsed)}>
                     ☰
                 </button>
-                <h2 style={{ margin: 0 }}>Streetlight Dashboard</h2>
+                <h2 style={{ margin: 0 }}>Asset Management</h2>
                 <SignOutButton />
             </div>
 
@@ -95,14 +97,20 @@ function Dashboard() {
 
                 <div className="summary-row">
                     <div className="summary-card active">
-                        <h3>Active Lights</h3>
-                        <p>{activeCount}</p>
+                        <div className="inner-card">
+                            <h3>Number of Active Lights</h3>
+                            <p>{activeCount}</p>
+
+                        </div>
                     </div>
 
                     <div className="summary-card maintenance clickable"
                          onClick={() => navigate("/list")}>
-                        <h3>Maintenance Required</h3>
-                        <p>{maintenanceCount}</p>
+                        <div className="inner-card">
+                            <h3>Number of lights needed maintenance</h3>
+                            <p>{maintenanceCount}</p>
+                        </div>
+
                     </div>
                 </div>
 

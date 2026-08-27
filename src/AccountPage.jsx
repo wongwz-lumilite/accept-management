@@ -65,7 +65,7 @@ function AccountPage() {
                 >
                     ☰
                 </button>
-                <h2 style={{ margin: 0 }}>Streetlight Dashboard</h2>
+                <h2 style={{ margin: 0 }}>Asset Management</h2>
                 <SignOutButton />
             </div>
 

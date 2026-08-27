@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import { collection, getDocs, doc, setDoc, Timestamp , updateDoc} from "firebase/firestore";
 import {db} from "./firebase.js";
 
-
+import "./assets/App.css";
 import "./assets/global.css";
 import "./assets/HomePage.css";
 import SignOutButton from "./signOut.jsx";
@@ -198,7 +198,7 @@ function HomePage() {
                 >
                     ☰
                 </button>
-                <h2 style={{ margin: 0 }}>Streetlight Dashboard</h2>
+                <h2 style={{ margin: 0 }}>Asset Management</h2>
                 <SignOutButton />
             </div>
 
@@ -219,8 +219,8 @@ function HomePage() {
                     </div>
 
                 </div>
-                <div className="h-850 table-wrapper">
-                    <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }}>
+                <div className="h-850">
+                    <table border="8" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }} className="border-radius-10">
                         <thead>
                         <tr>
                             <th>ID</th>
