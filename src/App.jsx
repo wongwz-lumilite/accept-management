@@ -11,7 +11,7 @@ import HomePage from "./HomePage";
 import AccountPage from "./AccountPage.jsx";
 import MaintenanceLogPage from "./MaintenanceLog.jsx";
 import Layout from "./layout.jsx";
-import { SidebarProvider } from "./SidebarContext.jsx"; // NEW
+import { SidebarProvider } from "./sidebarContext.jsx"; // NEW
 
 function App() {
     const [user, setUser] = useState(null);
