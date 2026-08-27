@@ -1,0 +1,36 @@
+p {
+    font-size: 18px;
+}
+
+h1 {
+    font-weight: 800;
+}
+
+.form-change-password {
+    justify-content: left;
+    align-items: flex-start;
+    gap:15px;
+}
+
+h3 {
+    margin: 0;
+}
+
+.content {
+    margin-left: 30px;
+}
+
+.change-pass-btn {
+    background-color: #2f7cb8;
+    height: 40px;
+    padding: 5px 10px;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: background-color 0.2s ease;
+}

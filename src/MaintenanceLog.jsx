@@ -1,17 +1,24 @@
-import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase.js";
-import { useSidebar } from "./useSidebar.js";
+import {useEffect, useState} from "react";
+import {collection, getDocs} from "firebase/firestore";
+import {db} from "./firebase.js";
+import {useSidebar} from "./useSidebar.js";
 import SignOutButton from "./signOut.jsx";
 import "./assets/global.css";
 import "./assets/HomePage.css";
 
-function isMaintenanceRequired(installedDate) {
-    if (!installedDate) return false;
-    const installed = installedDate.toDate ? installedDate.toDate() : new Date(installedDate);
-    const threeYearsAgo = new Date();
-    threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
-    return installed < threeYearsAgo;
+function isMaintenanceRequired(lastMaintainedDate) {
+    if (!lastMaintainedDate) return false; // never maintained — ignore
+
+    return lastMaintainedDate.toDate
+        ? lastMaintainedDate.toDate()
+        : new Date(lastMaintainedDate);
+}
+
+function getMaintainedDateValue(light) {
+    if (!light.lastMaintainedDate) return null;
+    return light.lastMaintainedDate.toDate
+        ? light.lastMaintainedDate.toDate()
+        : new Date(light.lastMaintainedDate);
 }
 
 function setStatusStyle(status) {
@@ -38,7 +45,22 @@ function MaintenanceLogPage() {
                     id: doc.id,
                     ...doc.data(),
                 }));
-                setStreetlights(data.filter((light) => isMaintenanceRequired(light.installedDate)));
+
+                const filtered = data.filter((light) =>
+                    isMaintenanceRequired(light.isMaintained)
+                );
+
+                const sorted = filtered.sort((a, b) => {
+                    const dateA = getMaintainedDateValue(a);
+                    const dateB = getMaintainedDateValue(b);
+
+                    if (!dateA && !dateB) return 0;
+                    if (!dateA) return 1;
+                    if (!dateB) return -1;
+                    return dateB - dateA;
+                });
+
+                setStreetlights(sorted);
             } catch (err) {
                 console.error("Error fetching streetlights:", err);
                 setError(err.message);
@@ -74,7 +96,7 @@ function MaintenanceLogPage() {
 
             <div style={{ padding: "20px" }}>
                 <h1>Maintenance Log</h1>
-                <p>Streetlights installed more than 3 years ago, requiring maintenance.</p>
+                <p>Streetlights that has been maintained will be logged here.</p>
 
                 <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }}>
                     <thead>
@@ -83,6 +105,7 @@ function MaintenanceLogPage() {
                         <th className="center">Zone</th>
                         <th className="center">Status</th>
                         <th>Installation Date</th>
+                        <th>Last maintained date</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -104,6 +127,11 @@ function MaintenanceLogPage() {
                                     {light.installedDate?.toDate
                                         ? light.installedDate.toDate().toLocaleDateString()
                                         : light.installedDate}
+                                </td>
+                                <td>
+                                    {light.isMaintained?.toDate
+                                        ? light.isMaintained.toDate().toLocaleDateString()
+                                        : "Haven't been maintained yet"}
                                 </td>
                             </tr>
                         ))

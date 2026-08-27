@@ -47,7 +47,7 @@ function SignIn() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
-                        {error && <p style={{ color: "red" }}>{error}</p>}
+                        {error && <p style={{ color: "red"}}><strong>{error}</strong></p>}
                         <button type="submit" className="sign-in-btn">Sign In</button>
                     </form>
                 </div>

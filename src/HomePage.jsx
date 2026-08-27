@@ -9,10 +9,26 @@ import SignOutButton from "./signOut.jsx";
 import { sendMaintenanceReminder } from "./email.js";
 import { useSidebar } from "./useSidebar.js";
 
+
+const fetchStreetlights = async () => {
+    try {
+        const snapshot = await getDocs(collection(db, "streetlights"));
+        const data = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        setStreetlights(data);
+    } catch (err) {
+        console.error("Error fetching streetlights:", err);
+        setError(err.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
 function isMaintenanceRequired(installedDate, maintenanceDate) {
     if (!installedDate) return false;
 
-    // Convert Firestore Timestamps or strings/numbers to JS Date objects
     const installed = installedDate.toDate ? installedDate.toDate() : new Date(installedDate);
     const maintained = maintenanceDate?.toDate
         ? maintenanceDate.toDate()
@@ -23,12 +39,10 @@ function isMaintenanceRequired(installedDate, maintenanceDate) {
     const threeYearsAgo = new Date();
     threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
 
-    // 1. If it was maintained recently (less than 3 years ago), no maintenance needed
     if (maintained && maintained >= threeYearsAgo) {
         return false;
     }
 
-    // 2. Otherwise, check if installed date is older than 3 years
     return installed < threeYearsAgo;
 }
 
@@ -48,6 +62,7 @@ async function handleMaintenance(lights) {
             isMaintained: Timestamp.now()
         });
         console.log(`Document ${lights} updated with isMaintained: null`);
+        await fetchStreetlights();
     } catch (error) {
         console.error("Error updating maintenance status: ", error);
     }
