@@ -206,7 +206,7 @@ function HomePage() {
             <div style={{ padding: "20px" }}>
                 <div className="flex-row space-between align-center">
                     <h1>Streetlight List</h1>
-                    <div className="flex-row space-between gap-20 h-50 align-items-center justify-center">
+                    <div className="flex-row space-between gap-20 h-50 align-center justify-center">
                         <button className = "maintenance-btn" onClick={handleSendMaintenanceEmail} disabled={sending}>
                             {sending ? "Sending..." : "Send Maintenance Form to Email"}
                         </button>

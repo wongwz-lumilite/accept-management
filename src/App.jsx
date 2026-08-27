@@ -10,6 +10,7 @@ import SignIn from "./signIn";
 import HomePage from "./HomePage";
 import AccountPage from "./AccountPage.jsx";
 import MaintenanceLogPage from "./MaintenanceLog.jsx";
+import DashboardPage from "./Dashboard.jsx";
 import Layout from "./layout.jsx";
 import { SidebarProvider } from "./sidebarContext.jsx"; // NEW
 
@@ -38,6 +39,10 @@ function App() {
                     <Route path="/signup" element={<SignUp />} />
                     <Route
                         path="/home"
+                        element={user ? <Layout><DashboardPage /></Layout> : <Navigate to="/signin" />}
+                    />
+                    <Route
+                        path="/list"
                         element={user ? <Layout><HomePage /></Layout> : <Navigate to="/signin" />}
                     />
                     <Route

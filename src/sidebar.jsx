@@ -15,12 +15,15 @@ function Sidebar() {
             </div>
             <nav>
                 <NavLink to="/home" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
-                    🏠 Home
+                    📊 Dashboard
+                </NavLink>
+                <NavLink to="/list" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                    💡 Streetlight List
                 </NavLink>
                 <NavLink to="/maintenance" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
                     🔧 Maintenance Log
                 </NavLink>
-                <NavLink to="/account" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                <NavLink to="/account" className={({isActive}) => isActive ? "sidebar-link active" : "sidebar-link"}>
                     👤 Account
                 </NavLink>
             </nav>
