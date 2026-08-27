@@ -53,3 +53,17 @@
 .image-center-sidebar img {
     width: 200px;
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2000;
+        height: 100vh;
+    }
+
+    .sidebar.collapsed {
+        width: 0;
+    }
+}

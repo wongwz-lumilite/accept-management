@@ -94,7 +94,7 @@ function MaintenanceLogPage() {
                 <SignOutButton />
             </div>
 
-            <div style={{ padding: "20px" }}>
+            <div style={{ padding: "20px" }} className="table-wrapper">
                 <h1>Maintenance Log</h1>
                 <p>Streetlights that has been maintained will be logged here.</p>
 

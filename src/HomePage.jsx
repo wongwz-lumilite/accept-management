@@ -219,7 +219,7 @@ function HomePage() {
                     </div>
 
                 </div>
-                <div className="h-850">
+                <div className="h-850 table-wrapper">
                     <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }}>
                         <thead>
                         <tr>
