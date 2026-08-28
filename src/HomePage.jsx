@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import { collection, getDocs, doc, setDoc, Timestamp , updateDoc} from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, updateDoc, Timestamp,deleteField } from "firebase/firestore";
 import {db} from "./firebase.js";
 
 import "./assets/App.css";
@@ -69,7 +69,7 @@ async function handleMaintenance(lights) {
 }
 
 function formatMaintenanceMessage(lights) {
-    const dueLights = lights.filter((light) => isMaintenanceRequired(light.installedDate));
+    const dueLights = lights.filter((light) => isMaintenanceRequired(light.installedDate, light.isMaintained));
 
     if (dueLights.length === 0) {
         return "No streetlights currently require maintenance.";
@@ -80,9 +80,28 @@ function formatMaintenanceMessage(lights) {
             const installed = light.installedDate?.toDate
                 ? light.installedDate.toDate().toLocaleDateString()
                 : light.installedDate;
-            return `• ${light.id} (Zone ${light.zone}) — installed ${installed}, status: ${light.status}`;
+
+            const lastMaintained = light.isMaintained?.toDate
+                ? light.isMaintained.toDate().toLocaleDateString()
+                : "Never maintained";
+
+            let entry = `• ${light.id} (Zone ${light.zone}) — installed ${installed}, status: ${light.status}\n  Last maintained: ${lastMaintained}`;
+
+            if (light.problem) {
+                const reportedDate = light.problem.reportedAt?.toDate
+                    ? light.problem.reportedAt.toDate().toLocaleDateString()
+                    : "unknown date";
+
+                entry += `\n  ⚠ Problem: ${light.problem.type}`;
+                if (light.problem.description) {
+                    entry += ` — ${light.problem.description}`;
+                }
+                entry += ` (reported ${reportedDate})`;
+            }
+
+            return entry;
         })
-        .join("\n");
+        .join("\n\n");
 }
 
 
@@ -90,6 +109,8 @@ function HomePage() {
     const [streetlights, setStreetlights] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const [searchTerm, setSearchTerm] = useState("");
 
     const [toEmail, setToEmail] = useState("");
     const [sending, setSending] = useState(false);
@@ -101,6 +122,7 @@ function HomePage() {
     const [newUID, setNewUID] = useState("");
     const [newZone, setNewZone] = useState("");
     const [newStatus, setNewStatus] = useState("active");
+    const [newWarranty, setNewWarranty] = useState("");
     const [newDate, setNewDate] = useState("");
     const [newLat, setNewLat] = useState("");
     const [newLng, setNewLng] = useState("");
@@ -127,6 +149,21 @@ function HomePage() {
     useEffect(() => {
         fetchStreetlights();
     }, []);
+
+    const filteredStreetlights = streetlights.filter((light) =>
+        light.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleResolveProblem = async (lightId) => {
+        try {
+            const ref = doc(db, "streetlights", lightId);
+            await updateDoc(ref, { problem: deleteField() });
+            await fetchStreetlights();
+        } catch (err) {
+            console.error("Error resolving problem:", err);
+            alert("Failed to mark as solved: " + err.message);
+        }
+    };
 
     const handleSendMaintenanceEmail = async () => {
         if (!toEmail) {
@@ -157,6 +194,7 @@ function HomePage() {
                 UID: newUID,
                 zone: newZone,
                 status: newStatus,
+                warranty: newWarranty,
                 installedDate: Timestamp.now(),
                 latitude: newLat ? parseFloat(newLat) : null,
                 longitude: newLng ? parseFloat(newLng) : null,
@@ -198,17 +236,27 @@ function HomePage() {
                 >
                     ☰
                 </button>
-                <h2 style={{ margin: 0 }}>Asset Management</h2>
+                <h2 style={{ margin: 0 }}>Asset Management Platform</h2>
                 <SignOutButton />
             </div>
 
 
             <div style={{ padding: "20px" }}>
                 <div className="flex-row space-between align-center">
-                    <h1>Streetlight List</h1>
+                    <div className="flex-row"
+                         style={{justifyContent: "space-evenly", alignItems: "center"}}>
+                        <h1>Streetlight List</h1>
+                        <input className="h-20"
+                           type="text"
+                           placeholder="Search by ID"
+                           value={searchTerm}
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+
                     <div className="flex-row space-between gap-20 h-50 align-center justify-center">
                         <button className = "maintenance-btn" onClick={handleSendMaintenanceEmail} disabled={sending}>
-                            {sending ? "Sending..." : "Send Maintenance Form to Email"}
+                            {sending ? "Sending..." : "Send work order to email"}
                         </button>
                         <input className="h-20"
                             type="email"
@@ -219,37 +267,42 @@ function HomePage() {
                     </div>
 
                 </div>
-                <div className="h-850">
+                <div className="h-850 overflow-x-auto">
                     <table border="8" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }} className="border-radius-10">
                         <thead>
                         <tr>
                             <th>ID</th>
                             <th>UID</th>
                             <th className="center">Zone</th>
-                            <th className="center">Status</th>
-                            <th>Longitude</th>
-                            <th>Latitude</th>
-                            <th>Installation Date</th>
-                            <th className="center">Maintenance Required</th>
+                            {/*<th className="center">Status</th>*/}
+                            <th className="center" style={{width: "150px"}}>Location</th>
+                            <th style={{width: "150px"}}>Installation Date</th>
+                            <th style={{width: "20px"}}>Warranty Period</th>
+                            <th className="center" style={{width: "200px"}}>Maintenance Required</th>
                             <th className="center">Mark as Maintained</th>
+                            <th className="center" style={{width: "15%"}}>Issue</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {streetlights.map((light) => (
+                        {filteredStreetlights.map((light) => (
                             <tr key={light.id}>
                                 <td>{light.id}</td>
                                 <td>{light.UID}</td>
                                 <td className="center">{light.zone}</td>
-                                <td className="center">
-                                    <span className={setStatusStyle(light.status)} style={{width: "40%"}}>{light.status.charAt(0).toUpperCase() + light.status.slice(1)}</span>
+                                {/*<td className="center">*/}
+                                {/*    <span className={setStatusStyle(light.status)} style={{width: "40%"}}>{light.status.charAt(0).toUpperCase() + light.status.slice(1)}</span>*/}
+                                {/*</td>*/}
+                                <td>
+                                    <a href={`https://www.google.com/maps?q=${light.latitude.toFixed(8)},${light.longitude.toFixed(8)}`} target="_blank">
+                                        {light.latitude.toFixed(8)}, {light.longitude.toFixed(8)}
+                                    </a>
                                 </td>
-                                <td>{light.longitude.toFixed(8)}</td>
-                                <td>{light.latitude.toFixed(8)}</td>
                                 <td>
                                     {light.installedDate?.toDate
                                         ? light.installedDate.toDate().toLocaleDateString()
                                         : light.installedDate}
                                 </td>
+                                <td>{light.warranty} years</td>
                                 <td style={{ textAlign: "center" }}>
                                     {isMaintenanceRequired(light.installedDate, light.isMaintained) ? (
                                         <span className="red-text">Yes</span>
@@ -264,6 +317,33 @@ function HomePage() {
                                         </button>
                                     ) : (
                                         <span><b>No action Required</b></span>
+                                    )}
+                                </td>
+                                <td>
+                                    {light.problem ? (
+                                        <>
+                                            <div style={{display: "flex", justifyContent: "flex-start", alignItems: "center", gap:"50px"}}>
+                                                <div>
+                                                    <strong>{light.problem.type}</strong>
+                                                    {light.problem.description && (
+                                                        <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#666" }}>
+                                                            {light.problem.description}
+                                                        </p>
+                                                    )}
+                                                    {light.problem.reportedAt && (
+                                                        <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#999" }}>
+                                                            Reported on: {light.problem.reportedAt.toDate().toLocaleDateString()}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <button onClick={() => handleResolveProblem(light.id)} className="solved-btn">Solved</button>
+                                                </div>
+                                            </div>
+                                        </>
+
+                                    ) : (
+                                        <span style={{ color: "#999" }}>No issues reported</span>
                                     )}
                                 </td>
                             </tr>
@@ -312,6 +392,12 @@ function HomePage() {
                                 <option value="active">active</option>
                                 <option value="inactive">inactive</option>
                             </select>
+                            <input
+                                type="number"
+                                placeholder="Warranty Period"
+                                value={newWarranty}
+                                onChange={(e) => setNewWarranty(e.target.value)}
+                            />
                             <input
                                 type="number"
                                 step="any"

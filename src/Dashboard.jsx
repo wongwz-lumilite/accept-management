@@ -66,6 +66,7 @@ function Dashboard() {
     if (error) return <p>Error: {error}</p>;
 
     const activeCount = streetlights.filter((light) => light.status === "active").length;
+    const totalCount = streetlights.length;
     const maintenanceCount = streetlights.filter((light) =>
         isMaintenanceRequired(light.installedDate, light.isMaintained)
     ).length;
@@ -88,7 +89,7 @@ function Dashboard() {
                 <button className="toggle-btn" onClick={() => setCollapsed(!collapsed)}>
                     ☰
                 </button>
-                <h2 style={{ margin: 0 }}>Asset Management</h2>
+                <h2 style={{ margin: 0 }}>Asset Management Platform</h2>
                 <SignOutButton />
             </div>
 
@@ -115,7 +116,7 @@ function Dashboard() {
                 </div>
 
                 <div className="chart-card">
-                    <h3>Number of Streetlights by Zone</h3>
+                    <h3>Number of Streetlights by Zone (Total: {totalCount})</h3>
                     <ResponsiveContainer width="100%" height={500}>
                         <PieChart>
                             <Pie

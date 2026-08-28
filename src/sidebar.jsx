@@ -20,6 +20,9 @@ function Sidebar() {
                 <NavLink to="/list" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
                     💡 Streetlight List
                 </NavLink>
+                <NavLink to="/action" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
+                    ⚠️ Action Form
+                </NavLink>
                 <NavLink to="/maintenance" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>
                     🔧 Maintenance Log
                 </NavLink>

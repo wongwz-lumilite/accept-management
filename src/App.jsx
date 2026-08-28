@@ -11,8 +11,9 @@ import HomePage from "./HomePage";
 import AccountPage from "./AccountPage.jsx";
 import MaintenanceLogPage from "./MaintenanceLog.jsx";
 import DashboardPage from "./Dashboard.jsx";
+import ActionPage from "./ActionForm.jsx";
 import Layout from "./layout.jsx";
-import { SidebarProvider } from "./sidebarContext.jsx"; // NEW
+import { SidebarProvider } from "./sidebarContext.jsx";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -46,13 +47,18 @@ function App() {
                         element={user ? <Layout><HomePage /></Layout> : <Navigate to="/signin" />}
                     />
                     <Route
-                        path="/account"
-                        element={user ? <Layout><AccountPage /></Layout> : <Navigate to="/signin" />}
+                        path="/action"
+                        element={user ? <Layout><ActionPage /></Layout> : <Navigate to="/signin" />}
                     />
                     <Route
                         path="/maintenance"
                         element={user ? <Layout><MaintenanceLogPage /></Layout> : <Navigate to="/signin" />}
                     />
+                    <Route
+                        path="/account"
+                        element={user ? <Layout><AccountPage /></Layout> : <Navigate to="/signin" />}
+                    />
+
                     <Route path="*" element={<Navigate to={user ? "/home" : "/signin"} />} />
                 </Routes>
             </SidebarProvider>

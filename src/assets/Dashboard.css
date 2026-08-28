@@ -23,7 +23,7 @@
 .summary-card {
     flex: 1;
     border-radius: 12px;
-    padding: 0 0 10px 0;
+    padding: 0 0 4px 0;
     text-align: center;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.12);
     border: #434952;
@@ -40,7 +40,7 @@
 }
 
 .summary-card.active {
-    background-color: #9ff4af;
+    background-color: #40dc5d;
 }
 
 .summary-card.active h3,
@@ -49,7 +49,7 @@
 }
 
 .summary-card.maintenance {
-    background-color: #fde2e2;
+    background-color: #ef3b3b;
 }
 
 .summary-card.maintenance h3,

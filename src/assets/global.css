@@ -125,3 +125,7 @@ html, body {
 .border-radius-10 {
     border-radius: 10px;
 }
+
+.overflow-x-auto {
+    overflow: auto;
+}

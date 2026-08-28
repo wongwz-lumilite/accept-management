@@ -1,0 +1,56 @@
+.action-content {
+    padding: 20px;
+    max-width: 800px;
+}
+
+.action-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: #f7fbfe;
+    border: 1px solid #d0e4f5;
+    border-radius: 12px;
+    padding: 24px;
+    align-items: stretch;
+}
+
+.action-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    color: #1a3d5c;
+}
+
+.action-form select,
+.action-form textarea {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #b8d8ec;
+    font-size: 15px;
+    font-family: inherit;
+}
+
+.action-form textarea {
+    resize: vertical;
+}
+
+.action-form button[type="submit"] {
+    padding: 12px 20px;
+    background-color: #2f7cb8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.action-form button[type="submit"]:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.status-msg {
+    color: #1a3d5c;
+    font-weight: 500;
+}

@@ -29,7 +29,7 @@ function SignIn() {
             <div style={{display: "flex",flexDirection: "column", marginTop: "5rem"}}>
                 <div className="image-logo-center" style={{flexDirection: "column", alignItems: "center"}}>
                     <img src={Lumilite} alt="logo" />
-                    <h1>Asset Management Dashboard</h1>
+                    <h1>Asset Management Platform</h1>
                 </div>
                 <div className="signIn">
                     <form onSubmit={handleSubmit}>
