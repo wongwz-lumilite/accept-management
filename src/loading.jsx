@@ -1,4 +1,4 @@
-import "./assets/Loading.css";
+import "./assets/loading.css";
 
 function Loading({ text = "Loading..." }) {
     return (
