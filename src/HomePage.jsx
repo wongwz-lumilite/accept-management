@@ -6,6 +6,7 @@ import "./assets/App.css";
 import "./assets/global.css";
 import "./assets/HomePage.css";
 import SignOutButton from "./signOut.jsx";
+import Loading from "./loading.jsx";
 import { sendMaintenanceReminder } from "./email.js";
 import { useSidebar } from "./useSidebar.js";
 
@@ -218,7 +219,7 @@ function HomePage() {
         }
     };
 
-    if (loading) return <p>Loading streetlights...</p>;
+    if (loading) return <Loading text="Loading streetlights..." />;
     if (error) return <p>Error: {error}</p>;
 
     return (
@@ -271,16 +272,16 @@ function HomePage() {
                     <table border="8" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }} className="border-radius-10">
                         <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>UID</th>
-                            <th className="center">Zone</th>
+                            <th style={{width: "5%"}}>ID</th>
+                            <th style={{width: "10%"}}>UID</th>
+                            <th className="center" style={{width: "5%"}}>Zone</th>
                             {/*<th className="center">Status</th>*/}
-                            <th className="center" style={{width: "150px"}}>Location</th>
-                            <th style={{width: "150px"}}>Installation Date</th>
-                            <th style={{width: "20px"}}>Warranty Period</th>
-                            <th className="center" style={{width: "200px"}}>Maintenance Required</th>
+                            <th className="center" style={{width: "10%"}}>Location</th>
+                            <th style={{width: "10%"}}>Installation Date</th>
+                            <th style={{width: "5%"}}>Warranty Period</th>
+                            <th className="center" style={{width: "15%"}}>Maintenance Required</th>
                             <th className="center">Mark as Maintained</th>
-                            <th className="center" style={{width: "15%"}}>Issue</th>
+                            <th className="center" style={{width: "20%"}}>Issue</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -323,8 +324,8 @@ function HomePage() {
                                     {light.problem ? (
                                         <>
                                             <div style={{display: "flex", justifyContent: "flex-start", alignItems: "center", gap:"50px"}}>
-                                                <div>
-                                                    <strong>{light.problem.type}</strong>
+                                                <div style={{width: "170px"}}>
+                                                    <strong >{light.problem.type}</strong>
                                                     {light.problem.description && (
                                                         <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#666" }}>
                                                             {light.problem.description}

@@ -5,6 +5,7 @@ import {useSidebar} from "./useSidebar.js";
 import SignOutButton from "./signOut.jsx";
 import "./assets/global.css";
 import "./assets/HomePage.css";
+import Loading from "./loading.jsx";
 
 function isMaintenanceRequired(lastMaintainedDate) {
     if (!lastMaintainedDate) return false; // never maintained — ignore
@@ -72,7 +73,7 @@ function MaintenanceLogPage() {
         fetchStreetlights();
     }, []);
 
-    if (loading) return <p>Loading maintenance log...</p>;
+    if (loading) return <Loading text="Loading logs..." />;;
     if (error) return <p>Error: {error}</p>;
 
     return (
@@ -102,7 +103,7 @@ function MaintenanceLogPage() {
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th className="center">Zone</th>
+                        <th className="center" style={{width: "5%",}}>Zone</th>
                         <th className="center">Status</th>
                         <th>Installation Date</th>
                         <th>Last maintained date</th>

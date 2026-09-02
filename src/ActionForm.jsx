@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs, doc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "./firebase.js";
+
 import { useSidebar } from "./useSidebar.js";
 import SignOutButton from "./signOut.jsx";
+import Loading from "./loading.jsx";
 import "./assets/global.css";
 import "./assets/ActionForm.css";
 
@@ -74,7 +76,7 @@ function ActionForm() {
         }
     };
 
-    if (loading) return <p>Loading streetlights...</p>;
+    if (loading) return <Loading text="Loading..." />;;
 
     return (
         <>
