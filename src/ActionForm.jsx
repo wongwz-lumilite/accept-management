@@ -55,6 +55,12 @@ function ActionForm() {
             return;
         }
 
+        const selectedLight = streetlights.find((light) => light.id === selectedId);
+        if (selectedLight?.problem) {
+            setStatus("There is already an existing problem, please check.");
+            return;
+        }
+
         try {
             setSubmitting(true);
             const ref = doc(db, "streetlights", selectedId);

@@ -49,11 +49,20 @@
 }
 
 .summary-card.maintenance {
+    background-color: #ef9b3b;
+}
+
+.summary-card.action {
     background-color: #ef3b3b;
 }
 
 .summary-card.maintenance h3,
 .summary-card.maintenance p {
+    color: #a16222;
+}
+
+.summary-card.action h3,
+.summary-card.action p {
     color: #a12222;
 }
 

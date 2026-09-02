@@ -11,6 +11,7 @@ import "./assets/HomePage.css";
 
 import { useSidebar } from "./useSidebar.js";
 import SignOutButton from "./signOut.jsx";
+import Loading from "./loading.jsx";
 
 function isMaintenanceRequired(installedDate, maintenanceDate) {
     if (!installedDate) return false;
@@ -62,11 +63,12 @@ function Dashboard() {
         fetchStreetlights();
     }, []);
 
-    if (loading) return <p>Loading dashboard...</p>;
+    if (loading) return <Loading text="Loading..." />;
     if (error) return <p>Error: {error}</p>;
 
     const activeCount = streetlights.filter((light) => light.status === "active").length;
     const totalCount = streetlights.length;
+    const actionCount = streetlights.filter((light) => light.problem !== "").length;
     const maintenanceCount = streetlights.filter((light) =>
         isMaintenanceRequired(light.installedDate, light.isMaintained)
     ).length;
@@ -111,7 +113,14 @@ function Dashboard() {
                             <h3>Number of lights needed maintenance</h3>
                             <p>{maintenanceCount}</p>
                         </div>
+                    </div>
 
+                    <div className="summary-card action clickable"
+                         onClick={() => navigate("/list")}>
+                        <div className="inner-card">
+                            <h3>Number of lights needed action</h3>
+                            <p>{actionCount}</p>
+                        </div>
                     </div>
                 </div>
 
